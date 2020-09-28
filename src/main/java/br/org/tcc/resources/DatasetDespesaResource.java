@@ -25,8 +25,8 @@ public class DatasetDespesaResource {
 	}
 
 	@POST
-	public Response create(DatasetDespesa product) {
-		DatasetDespesa productEntity = repository.save(product);
+	public Response create(DatasetDespesa datasetDespesa) {
+		DatasetDespesa entity = repository.save(datasetDespesa);
 		return Response.ok(repository).status(Response.Status.CREATED).build();
 	}
 
