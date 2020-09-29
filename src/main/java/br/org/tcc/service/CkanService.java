@@ -43,7 +43,7 @@ public class CkanService {
 
 	// }
 
-	public DatastoreInfo getDatasetResult(String categoria, int exercicio) throws Exception {
+	public DatastoreSearchResult getDatasetResult(String categoria, int exercicio) throws Exception {
 
 		return this.calldataservice(categoria, exercicio);
 
@@ -55,7 +55,7 @@ public class CkanService {
 
 	// }
 
-	private DatastoreInfo calldataservice(String categoria, int exercicio)
+	private DatastoreSearchResult calldataservice(String categoria, int exercicio)
 			throws Exception {
 
 		try {
@@ -67,18 +67,20 @@ public class CkanService {
 					.resourceId(UUID.fromString(datasetResource.getResourceId())) //
 					.fields(Arrays.asList("mes_movimentacao", "valor_pago")) //
 					.limit(100)
-					.recordsFormat(RecordsFormat.objects).build();
+					.recordsFormat(RecordsFormat.csv).build();
 
 			DatastoreService service = client.dataStoreService();
 
-			return service.datastoreInfo(UUID.fromString(datasetResource.getResourceId())).execute().body();
+			// return service.datastoreInfo(UUID.fromString(datasetResource.getResourceId())).execute().body();
+			
+			return service.datastoreSearch(datastoreSearch).execute().body();
 
 		} catch (IOException e) {
 			System.out.println(e.toString());
 			// TODO: handle exception
 		}
 
-		return new DatastoreInfo();
+		return new DatastoreSearchResult();
 	}
 
 }
