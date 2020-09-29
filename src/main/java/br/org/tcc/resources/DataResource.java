@@ -15,8 +15,12 @@ import com.google.gson.Gson;
 
 import br.org.tcc.dto.DatastoreRequestDTO;
 import br.org.tcc.dto.DatastoreResponseDTO;
+import br.org.tcc.dto.DespesaDTO;
+import br.org.tcc.dto.RecordDTO;
 import br.org.tcc.service.DatasetRecifeService;
 import br.org.tcc.utils.DatasetUtils;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -27,7 +31,7 @@ public class DataResource {
 	@Inject
 	@RestClient
 	DatasetRecifeService datasetService;
-	
+
 	@Inject
 	DatasetUtils datasetUtils;
 
@@ -40,13 +44,13 @@ public class DataResource {
 		request.setLimit(100);
 		request.setResource_id("dc9744c1-ab3d-4597-b8ce-a01c9ee2fdda");
 		request.setSort("mes_movimentacao");
-		
+
 		try {
-			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(), request.getDistinct(), request.getSort());
-			
+			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(),
+					request.getDistinct());
+
 			// this.datasetUtils.convertToDto(records);
-			
-			
+
 			DatastoreResponseDTO dto = new Gson().fromJson(records, DatastoreResponseDTO.class);
 
 			return Response.ok().entity(dto).build();
@@ -55,7 +59,57 @@ public class DataResource {
 		}
 
 		return Response.ok().entity(null).build();
-		
+
+	}
+	
+	@GET
+	@Path("/records/{categoria}/{exercicio}")
+	public Response getDatasetRecords(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio)
+			throws Exception {
+
+		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoria, exercicio);
+
+		try {
+
+			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(),
+					request.getDistinct());
+
+			DatastoreResponseDTO datastoreResponse = new Gson().fromJson(records, DatastoreResponseDTO.class);
+			
+			// List<RecordDTO> list = this.datasetUtils.resolveRecordType(categoria, datastoreResponse.getResult().getRecords());
+
+			return Response.ok().entity(datastoreResponse.getResult().getRecords()).build();
+			
+		} catch (Exception ex) {
+			System.out.println(ex.toString());
+		}
+
+		return Response.serverError().build();
+
+	}
+
+	@GET
+	@Path("/fields/{categoria}/{exercicio}")
+	public Response getDatasetFields(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio)
+			throws Exception {
+
+		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoria, exercicio);
+
+		try {
+
+			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(),
+					request.getDistinct());
+
+			DatastoreResponseDTO dto = new Gson().fromJson(records, DatastoreResponseDTO.class);
+
+			return Response.ok().entity(dto.getResult().getFields()).build();
+			
+		} catch (Exception ex) {
+			System.out.println(ex.toString());
+		}
+
+		return Response.serverError().build();
+
 	}
 
 }

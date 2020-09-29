@@ -1,13 +1,11 @@
-package br.org.tcc.entity;
+package br.org.tcc.dto;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-
-import javax.persistence.*;
 import java.util.Date;
 
-@Entity
-public class Despesa extends PanacheEntity {
+public class DespesaDTO extends RecordDTO {
 
+	private static final long serialVersionUID = -3276275735929916559L;
+	
 	private int ano_movimentacao;
 	private Date mes_movimentacao;
 
@@ -63,7 +61,7 @@ public class Despesa extends PanacheEntity {
 	private int valor_liquidado;
 	private int valor_pago;
 
-	public Despesa() {
+	public DespesaDTO() {
 
 	}
 
