@@ -27,6 +27,6 @@ public interface DatasetRecifeService {
     // @Path("/groups/{groupId}/reports/{reportId}/GenerateToken")
     // @ClientHeaderParam(name = "Authorization", value = "{generateAADToken}")
     @ClientHeaderParam(name = "Content-Type", value = "application/json")
-    public Response getDatasetResult(Map<String, String> parameters);
+    public Object getDatasetResult(Map<String, String> parameters);
 
 }

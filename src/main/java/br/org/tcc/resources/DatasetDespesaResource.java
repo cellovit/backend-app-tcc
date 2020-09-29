@@ -6,7 +6,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import br.org.tcc.entity.DatasetDespesaResult;
+import br.org.tcc.entity.Despesa;
 import br.org.tcc.repository.DatasetDespesaRepository;
 
 import java.util.List;
@@ -20,13 +20,13 @@ public class DatasetDespesaResource {
 	DatasetDespesaRepository repository;
 
 	@GET
-	public List<DatasetDespesaResult> list() {
+	public List<Despesa> list() {
 		return repository.listAll();
 	}
 
 	@POST
-	public Response create(DatasetDespesaResult datasetDespesa) {
-		DatasetDespesaResult entity = repository.save(datasetDespesa);
+	public Response create(Despesa datasetDespesa) {
+		Despesa entity = repository.save(datasetDespesa);
 		return Response.ok(repository).status(Response.Status.CREATED).build();
 	}
 
