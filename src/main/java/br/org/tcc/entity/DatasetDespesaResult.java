@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class DatasetDespesa extends PanacheEntity {
+public class DatasetDespesaResult extends PanacheEntity {
 
 
 	private int ano_movimentacao ;
