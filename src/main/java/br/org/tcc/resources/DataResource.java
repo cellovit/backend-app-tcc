@@ -26,21 +26,21 @@ public class DataResource {
 	@Inject
 	CkanService ckanService;
 	
-	@Inject
-	DatasetRecifeService datasetService;
-
-	@GET
-	@Path("/{categoria}/{exercicio}")
-	public Response getData(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio) throws Exception {
-
-
-		Map<String, String> parameters = new HashMap<>();
-
-
-		Object records = datasetService.getDatasetResult(parameters);
-		
-		return Response.ok().entity("records").build();
-	}
+//	@Inject
+//	DatasetRecifeService datasetService;
+//
+//	@GET
+//	@Path("/{categoria}/{exercicio}")
+//	public Response getData(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio) throws Exception {
+//
+//
+//		Map<String, String> parameters = new HashMap<>();
+//
+//
+//		Object records = datasetService.getDatasetResult(parameters);
+//		
+//		return Response.ok().entity("records").build();
+//	}
 
 	// params: {
     //     resource_id: 'dc9744c1-ab3d-4597-b8ce-a01c9ee2fdda',
