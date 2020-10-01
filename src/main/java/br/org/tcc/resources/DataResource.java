@@ -15,7 +15,6 @@ import com.google.gson.Gson;
 
 import br.org.tcc.dto.DatastoreRequestDTO;
 import br.org.tcc.dto.DatastoreResponseDTO;
-import br.org.tcc.dto.DespesaDTO;
 import br.org.tcc.dto.RecordDTO;
 import br.org.tcc.service.DatasetRecifeService;
 import br.org.tcc.utils.DatasetUtils;
@@ -30,7 +29,7 @@ public class DataResource {
 
 	@Inject
 	@RestClient
-	DatasetRecifeService datasetService;
+	DatasetRecifeService datasetRecifeService;
 
 	@Inject
 	DatasetUtils datasetUtils;
@@ -46,7 +45,7 @@ public class DataResource {
 		request.setSort("mes_movimentacao");
 
 		try {
-			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(),
+			String records = datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
 					request.getDistinct());
 
 			// this.datasetUtils.convertToDto(records);
@@ -71,13 +70,11 @@ public class DataResource {
 
 		try {
 
-			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(),
+			String records = datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
 					request.getDistinct());
 
 			DatastoreResponseDTO datastoreResponse = new Gson().fromJson(records, DatastoreResponseDTO.class);
-			
-			// List<RecordDTO> list = this.datasetUtils.resolveRecordType(categoria, datastoreResponse.getResult().getRecords());
-
+		
 			return Response.ok().entity(datastoreResponse.getResult().getRecords()).build();
 			
 		} catch (Exception ex) {
@@ -97,7 +94,7 @@ public class DataResource {
 
 		try {
 
-			String records = datasetService.getDatasetResult(request.getResource_id(), request.getLimit(),
+			String records = datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
 					request.getDistinct());
 
 			DatastoreResponseDTO dto = new Gson().fromJson(records, DatastoreResponseDTO.class);
