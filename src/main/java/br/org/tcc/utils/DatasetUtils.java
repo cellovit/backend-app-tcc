@@ -100,16 +100,7 @@ public class DatasetUtils {
 
 		return ColumnType.None;
 
-	}
-
-	private static boolean hasTypeDate(String stringFromTxt) {
-		try {
-			DATE_TIME_FORMAT.parse(stringFromTxt);
-			return true;
-		} catch (DateTimeParseException dtpe) {
-			return false;
-		}
-	}
+	}	
 	
 	// https://stackoverflow.com/questions/39204438/grouping-json-response-with-keys-in-java-android-studio
 	
@@ -148,5 +139,43 @@ public class DatasetUtils {
         return result.toString();
 
     }
+	
+	private String JsonGroupByCategoricalColumn(String jsonString, String groupByKey) throws Exception {
+        
+        ObjectMapper mapper = new ObjectMapper();
+
+        
+        JsonArray dataArray = new JsonParser().parse(jsonString).getAsJsonObject().getAsJsonArray("data");
+
+        HashMap<String, List<String>> designationsMap = new HashMap<String, List<String>>();
+
+        for (JsonElement element : dataArray) {
+        	
+            String designation = element.getAsJsonObject().get("chrDesigName").getAsString(); // groupBy tag
+            String empName = element.getAsJsonObject().get("chrempName").getAsString(); // sum value
+            
+            if (designationsMap.containsKey(designation)) {
+                designationsMap.get(designation).add(empName);
+            } else {
+                ArrayList<String> emptyList = new ArrayList<String>();
+                emptyList.add(empName);
+                designationsMap.put(designation, emptyList);
+            }
+        }
+
+        StringWriter result = new StringWriter();
+        mapper.writeValue(result, designationsMap);
+        return result.toString();
+
+    }
+	
+	private static boolean hasTypeDate(String stringFromTxt) {
+		try {
+			DATE_TIME_FORMAT.parse(stringFromTxt);
+			return true;
+		} catch (DateTimeParseException dtpe) {
+			return false;
+		}
+	}
 
 }
