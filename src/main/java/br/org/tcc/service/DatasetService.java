@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 
 import br.org.tcc.dto.DatastoreRequestDTO;
 import br.org.tcc.dto.DatastoreResponseDTO;
@@ -34,17 +36,13 @@ public class DatasetService {
 	@RestClient
 	DatasetRecifeService datasetRecifeService;
 
-	public List<Object> getDatasetRecords(String categoriaDataset, int exercicio) {
+	public String getDatasetRecords(String categoriaDataset, int exercicio) {
 		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoriaDataset, exercicio);
 
 		try {
 
-			String records = datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
+			return datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
 					request.getDistinct());
-
-			DatastoreResponseDTO datastoreResponse = new Gson().fromJson(records, DatastoreResponseDTO.class);
-
-			return datastoreResponse.getResult().getRecords();
 
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
@@ -52,15 +50,53 @@ public class DatasetService {
 
 		return null;
 	}
-	
-//	private List<Object> parseDatasetColumns() {
-//		
-//		
-//		
-//		return new ArrayList<>();
-//	}
 
-	private Map<ColumnType, List<String>> categorizaColunasDataset(String xAxis, String yAxis, List<Object> json) {
+	public List<ChartType> resolveChartTypes(String json, String xAxis, String yAxis)
+			throws JsonMappingException, JsonProcessingException, Exception {
+
+		String objectsString = json.toString();
+		List<ChartType> chartList = new ArrayList<>();
+
+		Map<ColumnType, List<String>> columnsList = this.categorizaColunasDataset(json);
+
+		List<String> categoricalColumns = columnsList.get(ColumnType.Categorical);
+		List<String> dateColumns = columnsList.get(ColumnType.Date);
+		List<String> numericColumns = columnsList.get(ColumnType.Numerical);
+
+		Set<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(objectsString, xAxis);
+
+		if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {
+
+			chartList.add(ChartType.Pie);
+			chartList.add(ChartType.Bar);
+			return chartList;
+
+		}
+
+		if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
+			chartList.add(ChartType.Bar);
+			return chartList;
+		}
+
+		if (dateColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
+
+			chartList.add(ChartType.Line);
+			return chartList;
+		}
+
+		if (numericColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
+			chartList.add(ChartType.Scatter);
+		}
+
+		return null;
+
+	}
+
+	public Map<ColumnType, List<String>> categorizaColunasDataset(String json) {
+
+		DatastoreResponseDTO datastoreResponse = new Gson().fromJson(json, DatastoreResponseDTO.class);
+
+		List<Object> records = datastoreResponse.getResult().getRecords();
 
 		Map<ColumnType, List<String>> colCategories = new HashMap<ColumnType, List<String>>();
 
@@ -68,23 +104,26 @@ public class DatasetService {
 		List<String> dateColumns = new ArrayList<>();
 		List<String> numericColumns = new ArrayList<>();
 
-		String obj1 = json.get(0).toString();
+		String json1 = new Gson().toJson(records.get(0));
 
-		JsonObject jsonObject = new JsonParser().parse(obj1).getAsJsonObject();
+		JsonObject jsonObject = new JsonParser().parse(json1).getAsJsonObject();
 
 		jsonObject.keySet().forEach(x -> {
 
 			try {
-				ColumnType colunmCategory = this.datasetUtils.categorizaColuna(obj1, x);
+				ColumnType colunmCategory = this.datasetUtils.categorizaColuna(json1, x);
 
 				switch (colunmCategory) {
 
 				case Categorical:
 					categoricalColumns.add(x);
+					break;
 				case Date:
-					dateColumns.add(x);				
+					dateColumns.add(x);
+					break;
 				case Numerical:
 					numericColumns.add(x);
+					break;
 				case None:
 					break;
 				default:
@@ -98,30 +137,22 @@ public class DatasetService {
 			}
 
 		});
-		
+
 		colCategories.put(ColumnType.Categorical, categoricalColumns);
 		colCategories.put(ColumnType.Date, dateColumns);
 		colCategories.put(ColumnType.Numerical, numericColumns);
-		
+
 		return colCategories;
 
 	}
 
-	public List<ChartType> resolveChartType(String json) throws JsonMappingException, JsonProcessingException {
+	private List<Object> parseDatasetColumns(Map<ColumnType, List<String>> categories, List<Object> json) {
 
-		List<ChartType> chartList = new ArrayList<>();
+		// TODO: parse numerical
 
-//		int xAxisType = this.datasetUtils.categorizaColuna(json, xAxis).getValue();
-//		int yAxisType = this.datasetUtils.categorizaColuna(json, yAxis).getValue();
-//		
-//		if (xAxisType == 1 && yAxisType == 3) {
-//			chartList.add(ChartType.Bar);
-//		}
-//		
-//		if ()
+		// TODO: parse date
 
-		return null;
-
+		return new ArrayList<>();
 	}
 
 }

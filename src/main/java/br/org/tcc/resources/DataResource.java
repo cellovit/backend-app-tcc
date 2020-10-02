@@ -16,10 +16,13 @@ import com.google.gson.Gson;
 import br.org.tcc.dto.DatastoreRequestDTO;
 import br.org.tcc.dto.DatastoreResponseDTO;
 import br.org.tcc.dto.RecordDTO;
+import br.org.tcc.enums.ColumnType;
 import br.org.tcc.service.DatasetRecifeService;
+import br.org.tcc.service.DatasetService;
 import br.org.tcc.utils.DatasetUtils;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -30,6 +33,9 @@ public class DataResource {
 	@Inject
 	@RestClient
 	DatasetRecifeService datasetRecifeService;
+
+	@Inject
+	DatasetService datasetService;
 
 	@Inject
 	DatasetUtils datasetUtils;
@@ -60,23 +66,22 @@ public class DataResource {
 		return Response.ok().entity(null).build();
 
 	}
-	
+
 	@GET
 	@Path("/records/{categoria}/{exercicio}")
 	public Response getDatasetRecords(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio)
 			throws Exception {
 
-		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoria, exercicio);
-
 		try {
 
-			String records = datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
-					request.getDistinct());
+			String recordsString = this.datasetService.getDatasetRecords(categoria, exercicio);
 
-			DatastoreResponseDTO datastoreResponse = new Gson().fromJson(records, DatastoreResponseDTO.class);
-		
-			return Response.ok().entity(datastoreResponse.getResult().getRecords()).build();
-			
+			DatastoreResponseDTO datastoreResponse = new Gson().fromJson(recordsString, DatastoreResponseDTO.class);
+
+			List<Object> records = datastoreResponse.getResult().getRecords();
+
+			return Response.ok().entity(records).build();
+
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
 		}
@@ -90,17 +95,15 @@ public class DataResource {
 	public Response getDatasetFields(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio)
 			throws Exception {
 
-		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoria, exercicio);
-
 		try {
 
-			String records = datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
-					request.getDistinct());
+			String recordsString = this.datasetService.getDatasetRecords(categoria, exercicio);
 
-			DatastoreResponseDTO dto = new Gson().fromJson(records, DatastoreResponseDTO.class);
+			Map<ColumnType, List<String>> camposCategorizados = this.datasetService
+					.categorizaColunasDataset(recordsString);
 
-			return Response.ok().entity(dto.getResult().getFields()).build();
-			
+			return Response.ok().entity(camposCategorizados).build();
+
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
 		}
