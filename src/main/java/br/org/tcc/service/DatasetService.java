@@ -54,7 +54,6 @@ public class DatasetService {
 	public List<ChartType> resolveChartTypes(String json, String xAxis, String yAxis)
 			throws JsonMappingException, JsonProcessingException, Exception {
 
-		String objectsString = json.toString();
 		List<ChartType> chartList = new ArrayList<>();
 
 		Map<ColumnType, List<String>> columnsList = this.categorizaColunasDataset(json);
@@ -63,10 +62,9 @@ public class DatasetService {
 		List<String> dateColumns = columnsList.get(ColumnType.Date);
 		List<String> numericColumns = columnsList.get(ColumnType.Numerical);
 
-		Set<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(objectsString, xAxis);
+		Set<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
 
 		if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {
-
 			chartList.add(ChartType.Pie);
 			chartList.add(ChartType.Bar);
 			return chartList;
@@ -79,13 +77,13 @@ public class DatasetService {
 		}
 
 		if (dateColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
-
 			chartList.add(ChartType.Line);
 			return chartList;
 		}
 
 		if (numericColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
 			chartList.add(ChartType.Scatter);
+			return chartList;
 		}
 
 		return null;
@@ -115,19 +113,19 @@ public class DatasetService {
 
 				switch (colunmCategory) {
 
-				case Categorical:
-					categoricalColumns.add(x);
-					break;
-				case Date:
-					dateColumns.add(x);
-					break;
-				case Numerical:
-					numericColumns.add(x);
-					break;
-				case None:
-					break;
-				default:
-					break;
+					case Categorical:
+						categoricalColumns.add(x);
+						break;
+					case Date:
+						dateColumns.add(x);
+						break;
+					case Numerical:
+						numericColumns.add(x);
+						break;
+					case None:
+						break;
+					default:
+						break;
 
 				}
 

@@ -83,7 +83,7 @@ public class DatasetUtils {
 		DatastoreRequestDTO request = new DatastoreRequestDTO();
 
 		request.setDistinct("true");
-		request.setLimit(100);
+		request.setLimit(499);
 		request.setResource_id(datasetResource.getResourceId());
 
 		return request;
@@ -97,16 +97,14 @@ public class DatasetUtils {
 		JsonNode root = mapper.readTree(json);
 		JsonNode nodeValue = root.get(columnName);
 
-		System.out.println(nodeValue.asText().replaceAll(",", "."));
-
 		if (nodeValue.isNumber() || isNumeric((nodeValue.asText().replaceAll(",", ".")))) {
-			System.out.println("NUMERICAL");
+			// System.out.println("NUMERICAL");
 			return ColumnType.Numerical;
 		} else if (hasTypeDate(nodeValue.toString())) {
-			System.out.println("DATE");
+			// System.out.println("DATE");
 			return ColumnType.Date;
 		} else if (nodeValue.isTextual()) {
-			System.out.println("CATEGORICAL");
+			// System.out.println("CATEGORICAL");
 			return ColumnType.Categorical;
 		}
 
@@ -183,7 +181,8 @@ public class DatasetUtils {
 
 	public Set<JsonPrimitive> JsonGetColumnValues(String jsonObjectsString, String groupByKey) throws Exception {
 
-		JsonArray dataArray = new JsonParser().parse(jsonObjectsString).getAsJsonArray();
+		JsonObject fullResponse = new JsonParser().parse(jsonObjectsString).getAsJsonObject();
+		JsonArray dataArray = fullResponse.getAsJsonObject("result").get("records").getAsJsonArray();
 
 		Set<JsonPrimitive> columnValues = new HashSet<>();
 

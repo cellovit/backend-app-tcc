@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import br.org.tcc.dto.DatastoreRequestDTO;
 import br.org.tcc.dto.DatastoreResponseDTO;
 import br.org.tcc.dto.RecordDTO;
+import br.org.tcc.enums.ChartType;
 import br.org.tcc.enums.ColumnType;
 import br.org.tcc.service.DatasetRecifeService;
 import br.org.tcc.service.DatasetService;
@@ -103,6 +104,28 @@ public class DataResource {
 					.categorizaColunasDataset(recordsString);
 
 			return Response.ok().entity(camposCategorizados).build();
+
+		} catch (Exception ex) {
+			System.out.println(ex.toString());
+		}
+
+		return Response.serverError().build();
+
+	}
+
+	@GET
+	@Path("/chartTypes/{categoria}/{exercicio}/{xAxis}/{yAxis}")
+	public Response getDatasetRecordsGrouped(@PathParam("categoria") String categoria,
+			@PathParam("exercicio") int exercicio, @PathParam("xAxis") String xAxis, @PathParam("yAxis") String yAxis)
+			throws Exception {
+
+		try {
+
+			String recordsString = this.datasetService.getDatasetRecords(categoria, exercicio);
+
+			List<ChartType> charts = this.datasetService.resolveChartTypes(recordsString, xAxis, yAxis);
+
+			return Response.ok().entity(charts).build();
 
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
