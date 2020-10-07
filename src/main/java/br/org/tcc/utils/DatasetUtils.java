@@ -179,12 +179,12 @@ public class DatasetUtils {
 
 	}
 
-	public Set<JsonPrimitive> JsonGetColumnValues(String jsonObjectsString, String groupByKey) throws Exception {
+	public List<JsonPrimitive> JsonGetColumnValues(String jsonObjectsString, String groupByKey) throws Exception {
 
 		JsonObject fullResponse = new JsonParser().parse(jsonObjectsString).getAsJsonObject();
 		JsonArray dataArray = fullResponse.getAsJsonObject("result").get("records").getAsJsonArray();
 
-		Set<JsonPrimitive> columnValues = new HashSet<>();
+		List<JsonPrimitive> columnValues = new ArrayList<>();
 
 		dataArray.forEach(x -> {
 
@@ -213,6 +213,21 @@ public class DatasetUtils {
 			return false;
 		}
 		return pattern.matcher(strNum).matches();
+	}
+
+	public static int[] numericalBin(double[] data, double min, double max, int numBins) {
+		final int[] result = new int[numBins];
+		final double binSize = (max - min) / numBins;
+
+		for (double d : data) {
+			int bin = (int) ((d - min) / binSize);
+			if (bin < 0) {
+				/* this data is smaller than min */ } else if (bin >= numBins) {
+				/* this data point is bigger than max */ } else {
+				result[bin] += 1;
+			}
+		}
+		return result;
 	}
 
 }

@@ -1,10 +1,16 @@
 package br.org.tcc.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +32,11 @@ import br.org.tcc.enums.ChartType;
 import br.org.tcc.enums.ColumnType;
 import br.org.tcc.utils.DatasetUtils;
 
+import ml.shifu.shifu.container.ValueObject;
+import ml.shifu.shifu.container.obj.ModelStatsConf.BinningMethod;
+import ml.shifu.shifu.core.Binning;
+import ml.shifu.shifu.core.Binning.BinningDataType;
+
 @ApplicationScoped
 public class DatasetService {
 
@@ -35,6 +46,9 @@ public class DatasetService {
 	@Inject
 	@RestClient
 	DatasetRecifeService datasetRecifeService;
+
+	private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("YYYY/MM/DD")
+			.withResolverStyle(ResolverStyle.STRICT);
 
 	public String getDatasetRecords(String categoriaDataset, int exercicio) {
 		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoriaDataset, exercicio);
@@ -62,7 +76,7 @@ public class DatasetService {
 		List<String> dateColumns = columnsList.get(ColumnType.Date);
 		List<String> numericColumns = columnsList.get(ColumnType.Numerical);
 
-		Set<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
+		List<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
 
 		if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {
 			chartList.add(ChartType.Pie);
@@ -113,19 +127,19 @@ public class DatasetService {
 
 				switch (colunmCategory) {
 
-					case Categorical:
-						categoricalColumns.add(x);
-						break;
-					case Date:
-						dateColumns.add(x);
-						break;
-					case Numerical:
-						numericColumns.add(x);
-						break;
-					case None:
-						break;
-					default:
-						break;
+				case Categorical:
+					categoricalColumns.add(x);
+					break;
+				case Date:
+					dateColumns.add(x);
+					break;
+				case Numerical:
+					numericColumns.add(x);
+					break;
+				case None:
+					break;
+				default:
+					break;
 
 				}
 
@@ -144,13 +158,69 @@ public class DatasetService {
 
 	}
 
-	private List<Object> parseDatasetColumns(Map<ColumnType, List<String>> categories, List<Object> json) {
+//	private List<Object> parseDatasetColumns(Map<ColumnType, List<String>> colCategories, String json, String xAxis,
+//			String yAxis) throws Exception {
+//
+//		// TODO: parse date
+//		List<LocalDate> dateArray = new ArrayList<>();
+//		List<String> dateColumns = colCategories.get(ColumnType.Date);
+//		List<String> numericalColumns = colCategories.get(ColumnType.Numerical);
+//
+//		// groupby date column and sum
+//
+//		if (dateColumns.contains(xAxis)) {
+//
+//			List<JsonPrimitive> jsonDateValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
+//
+//			// converte valores para datetime
+//			jsonDateValues.forEach(x -> {
+//
+//				if (!x.isJsonNull()) {
+//					String dateValue = x.getAsString();
+//
+//					LocalDate dateTime = LocalDate.parse(dateValue, DATE_TIME_FORMAT);
+//					dateArray.add(dateTime);
+//				}
+//
+//			});
+//
+//			// this.dateBinning();
+//
+//			Collections.sort(dateArray);
+//		} 
+//		
+//		if (numericalColumns.contains(xAxis)) {
+//
+//			List<JsonPrimitive> jsonNumericalValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
+//			
+//			double[] nums1 = jsonNumericalValues.stream().mapToDouble(x -> x.getAsDouble()).toArray();
+//			double min = Arrays.stream(nums1).min().getAsDouble();
+//			double max = Arrays.stream(nums1).max().getAsDouble();
+//			
+//			int[] bins1 = this.datasetUtils.numericalBin(nums1, min, max, 20);
+//			
+//			System.out.println(bins1);
+//
+//			// Binning bin1 = new Binning()
+//		}
+//
+//		
+//
+//		// TODO: parse numerical (groupby and sum)
+//
+//		return new ArrayList<>();
+//	}
 
-		// TODO: parse numerical
+//	private List<Object> processDatasetDateValues() {
+//		
+//	}
 
-		// TODO: parse date
+	private List<String> dateBinning() {
 
-		return new ArrayList<>();
+		List<String> dateIntervals = new ArrayList<>();
+
+		return dateIntervals;
+
 	}
 
 }

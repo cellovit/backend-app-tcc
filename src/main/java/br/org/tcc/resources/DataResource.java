@@ -115,7 +115,7 @@ public class DataResource {
 
 	@GET
 	@Path("/chartTypes/{categoria}/{exercicio}/{xAxis}/{yAxis}")
-	public Response getDatasetRecordsGrouped(@PathParam("categoria") String categoria,
+	public Response getChartTypes(@PathParam("categoria") String categoria,
 			@PathParam("exercicio") int exercicio, @PathParam("xAxis") String xAxis, @PathParam("yAxis") String yAxis)
 			throws Exception {
 
