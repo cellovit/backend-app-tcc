@@ -83,7 +83,7 @@ public class DatasetUtils {
 		DatastoreRequestDTO request = new DatastoreRequestDTO();
 
 		request.setDistinct("true");
-		request.setLimit(100);
+		request.setLimit(499);
 		request.setResource_id(datasetResource.getResourceId());
 
 		return request;
@@ -97,16 +97,14 @@ public class DatasetUtils {
 		JsonNode root = mapper.readTree(json);
 		JsonNode nodeValue = root.get(columnName);
 
-		System.out.println(nodeValue.asText().replaceAll(",", "."));
-
 		if (nodeValue.isNumber() || isNumeric((nodeValue.asText().replaceAll(",", ".")))) {
-			System.out.println("NUMERICAL");
+			// System.out.println("NUMERICAL");
 			return ColumnType.Numerical;
 		} else if (hasTypeDate(nodeValue.toString())) {
-			System.out.println("DATE");
+			// System.out.println("DATE");
 			return ColumnType.Date;
 		} else if (nodeValue.isTextual()) {
-			System.out.println("CATEGORICAL");
+			// System.out.println("CATEGORICAL");
 			return ColumnType.Categorical;
 		}
 
@@ -181,11 +179,12 @@ public class DatasetUtils {
 
 	}
 
-	public Set<JsonPrimitive> JsonGetColumnValues(String jsonObjectsString, String groupByKey) throws Exception {
+	public List<JsonPrimitive> JsonGetColumnValues(String jsonObjectsString, String groupByKey) throws Exception {
 
-		JsonArray dataArray = new JsonParser().parse(jsonObjectsString).getAsJsonArray();
+		JsonObject fullResponse = new JsonParser().parse(jsonObjectsString).getAsJsonObject();
+		JsonArray dataArray = fullResponse.getAsJsonObject("result").get("records").getAsJsonArray();
 
-		Set<JsonPrimitive> columnValues = new HashSet<>();
+		List<JsonPrimitive> columnValues = new ArrayList<>();
 
 		dataArray.forEach(x -> {
 
@@ -214,6 +213,21 @@ public class DatasetUtils {
 			return false;
 		}
 		return pattern.matcher(strNum).matches();
+	}
+
+	public static int[] numericalBin(double[] data, double min, double max, int numBins) {
+		final int[] result = new int[numBins];
+		final double binSize = (max - min) / numBins;
+
+		for (double d : data) {
+			int bin = (int) ((d - min) / binSize);
+			if (bin < 0) {
+				/* this data is smaller than min */ } else if (bin >= numBins) {
+				/* this data point is bigger than max */ } else {
+				result[bin] += 1;
+			}
+		}
+		return result;
 	}
 
 }
