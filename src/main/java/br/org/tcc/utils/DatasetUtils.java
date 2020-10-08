@@ -1,11 +1,13 @@
 package br.org.tcc.utils;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import javax.persistence.NoResultException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -49,8 +52,6 @@ public class DatasetUtils {
 	DatasetResourceRepository datasetRepository;
 
 	private final static String MSG_ERRO_STRING = "Não foi possivel encontrar o objeto com os parâmetros definidos";
-	private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("YYYY/MM/DD")
-			.withResolverStyle(ResolverStyle.STRICT);
 
 	public DatastoreSearchResultDTO convertToDto(String json) throws JsonMappingException, JsonProcessingException {
 
@@ -100,7 +101,7 @@ public class DatasetUtils {
 		if (nodeValue.isNumber() || isNumeric((nodeValue.asText().replaceAll(",", ".")))) {
 			// System.out.println("NUMERICAL");
 			return ColumnType.Numerical;
-		} else if (hasTypeDate(nodeValue.toString())) {
+		} else if (hasTypeDate(nodeValue.asText())) {
 			// System.out.println("DATE");
 			return ColumnType.Date;
 		} else if (nodeValue.isTextual()) {
@@ -184,24 +185,36 @@ public class DatasetUtils {
 		JsonObject fullResponse = new JsonParser().parse(jsonObjectsString).getAsJsonObject();
 		JsonArray dataArray = fullResponse.getAsJsonObject("result").get("records").getAsJsonArray();
 
+		// Logger.getLogger(getClass()).info(dataArray.get(1));
+
 		List<JsonPrimitive> columnValues = new ArrayList<>();
 
-		dataArray.forEach(x -> {
+		for (int i = 0; i < dataArray.size(); i++) {
 
-			JsonObject jsonObject = x.getAsJsonObject();
-			columnValues.add(jsonObject.get(groupByKey).getAsJsonPrimitive());
+			JsonObject jsonObject = dataArray.get(i).getAsJsonObject();
 
-		});
+			if (Objects.nonNull(jsonObject.get(groupByKey))) {
+				columnValues.add(jsonObject.get(groupByKey).getAsJsonPrimitive());
+				Logger.getLogger(getClass()).info(jsonObject.get(groupByKey).getAsJsonPrimitive());
+			}
+
+		}
 
 		return columnValues;
 
 	}
 
-	private static boolean hasTypeDate(String stringFromTxt) {
+	private boolean hasTypeDate(String stringFromTxt) {
+		
 		try {
-			DATE_TIME_FORMAT.parse(stringFromTxt);
+			// parse both formats (use optional section, delimited by [])
+			DateTimeFormatter parser = DateTimeFormatter.ofPattern("[MM/dd/yyyy][yyyy-MM-dd'T'HH:mm:ss][YYYY/MM/DD]");
+
+			LocalDate d1 = LocalDate.parse(stringFromTxt, parser);
+			
 			return true;
 		} catch (DateTimeParseException dtpe) {
+			Logger.getLogger(getClass()).error(dtpe);
 			return false;
 		}
 	}

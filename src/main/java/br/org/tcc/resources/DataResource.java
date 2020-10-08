@@ -1,6 +1,7 @@
 package br.org.tcc.resources;
 
 import javax.ws.rs.GET;
+import org.jboss.logging.Logger;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -129,6 +130,7 @@ public class DataResource {
 
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
+			Logger.getLogger(getClass()).error(ex.toString());
 		}
 
 		return Response.serverError().build();
