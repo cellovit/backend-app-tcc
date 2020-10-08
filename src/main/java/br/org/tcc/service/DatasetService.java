@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -59,7 +60,7 @@ public class DatasetService {
 					request.getDistinct());
 
 		} catch (Exception ex) {
-			System.out.println(ex.toString());
+			Logger.getLogger(getClass()).error(ex.toString());
 		}
 
 		return null;
@@ -68,39 +69,52 @@ public class DatasetService {
 	public List<ChartType> resolveChartTypes(String json, String xAxis, String yAxis)
 			throws JsonMappingException, JsonProcessingException, Exception {
 
-		List<ChartType> chartList = new ArrayList<>();
+		try {
 
-		Map<ColumnType, List<String>> columnsList = this.categorizaColunasDataset(json);
+			List<ChartType> chartList = new ArrayList<>();
 
-		List<String> categoricalColumns = columnsList.get(ColumnType.Categorical);
-		List<String> dateColumns = columnsList.get(ColumnType.Date);
-		List<String> numericColumns = columnsList.get(ColumnType.Numerical);
+			Map<ColumnType, List<String>> columnsList = this.categorizaColunasDataset(json);
 
-		List<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
+			List<String> categoricalColumns = columnsList.get(ColumnType.Categorical);
+			List<String> dateColumns = columnsList.get(ColumnType.Date);
+			List<String> numericColumns = columnsList.get(ColumnType.Numerical);
+			
+			// Logger.getLogger(getClass()).info(json);
 
-		if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {
-			chartList.add(ChartType.Pie);
-			chartList.add(ChartType.Bar);
-			return chartList;
+			List<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
+			
+			Logger.getLogger(getClass()).info(xAxisValues);
+
+			if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {
+				chartList.add(ChartType.Pie);
+				chartList.add(ChartType.Bar);
+				return chartList;
+
+			}
+
+			if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
+				chartList.add(ChartType.Bar);
+				return chartList;
+			}
+
+			if (dateColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
+				chartList.add(ChartType.Line);
+				return chartList;
+			}
+
+			if (numericColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
+				chartList.add(ChartType.Scatter);
+				return chartList;
+			}
 
 		}
 
-		if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
-			chartList.add(ChartType.Bar);
-			return chartList;
+		catch (Exception ex) {
+			Logger.getLogger(getClass()).error("Erro no metodo que obtem os tipos de grafico");
+			Logger.getLogger(getClass()).error(ex.toString());
 		}
 
-		if (dateColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
-			chartList.add(ChartType.Line);
-			return chartList;
-		}
-
-		if (numericColumns.contains(xAxis) && numericColumns.contains(yAxis)) {
-			chartList.add(ChartType.Scatter);
-			return chartList;
-		}
-
-		return null;
+		return new ArrayList<>();
 
 	}
 
