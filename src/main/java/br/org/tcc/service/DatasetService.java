@@ -56,8 +56,23 @@ public class DatasetService {
 
 		try {
 
-			return datasetRecifeService.getDatasetResult(request.getResource_id(), request.getLimit(),
-					request.getDistinct());
+			return datasetRecifeService.getDatasetResult(request.getResource_id(), 999999, "true");
+
+		} catch (Exception ex) {
+			Logger.getLogger(getClass()).error(ex.toString());
+		}
+
+		return null;
+	}
+
+	public String getDatasetRecordsWithAxes(String categoriaDataset, int exercicio, String xAxis, String yAxis) {
+		DatastoreRequestDTO request = this.datasetUtils.prepareDatasetSearchRequest(categoriaDataset, exercicio, xAxis,
+				yAxis);
+
+		try {
+
+			return datasetRecifeService.getDatasetResult(request.getResource_id(), 999999, request.getDistinct(),
+					request.getFields());
 
 		} catch (Exception ex) {
 			Logger.getLogger(getClass()).error(ex.toString());
@@ -78,11 +93,11 @@ public class DatasetService {
 			List<String> categoricalColumns = columnsList.get(ColumnType.Categorical);
 			List<String> dateColumns = columnsList.get(ColumnType.Date);
 			List<String> numericColumns = columnsList.get(ColumnType.Numerical);
-			
+
 			// Logger.getLogger(getClass()).info(json);
 
 			List<JsonPrimitive> xAxisValues = this.datasetUtils.JsonGetColumnValues(json, xAxis);
-			
+
 			Logger.getLogger(getClass()).info(xAxisValues);
 
 			if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {

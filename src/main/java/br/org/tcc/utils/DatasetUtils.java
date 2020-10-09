@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -76,6 +77,21 @@ public class DatasetUtils {
 		return dto;
 	}
 
+	public DatastoreRequestDTO prepareDatasetSearchRequest(String categoria, int exercicio, String xAxis, String yAxis) {
+
+		DatasetResource datasetResource = this.datasetRepository.getByCategoriaAndExercicio(categoria, exercicio)
+				.orElseThrow(() -> new NoResultException(MSG_ERRO_STRING));
+
+		DatastoreRequestDTO request = new DatastoreRequestDTO();
+
+		request.setDistinct("true");
+		// request.setLimit(999999);
+		request.setResource_id(datasetResource.getResourceId());
+		request.setFields(Arrays.asList(xAxis, yAxis));
+
+		return request;
+	}
+	
 	public DatastoreRequestDTO prepareDatasetSearchRequest(String categoria, int exercicio) {
 
 		DatasetResource datasetResource = this.datasetRepository.getByCategoriaAndExercicio(categoria, exercicio)
@@ -84,7 +100,7 @@ public class DatasetUtils {
 		DatastoreRequestDTO request = new DatastoreRequestDTO();
 
 		request.setDistinct("true");
-		request.setLimit(499);
+		// request.setLimit(999999);
 		request.setResource_id(datasetResource.getResourceId());
 
 		return request;
