@@ -1,5 +1,6 @@
 package br.org.tcc.repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,18 @@ public class DatasetResourceRepository implements PanacheRepository<DatasetResou
 			return Optional.ofNullable(find("categoria = :categoria and exercicio = :exercicio", params).firstResult());
 		} catch (NoResultException e) {
 			return Optional.empty();
+		}
+	}
+	
+	public List<DatasetResource> getDatasetsByCategoria(String categoria) {
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("categoria", categoria);
+
+		try {
+			return find("categoria = :categoria", params).list();
+		} catch (NoResultException e) {
+			return new ArrayList<>();
 		}
 	}
 
