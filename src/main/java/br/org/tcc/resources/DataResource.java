@@ -93,6 +93,30 @@ public class DataResource {
 	}
 
 	@GET
+	@Path("/records/{categoria}/{exercicio}/{xAxis}/{yAxis}")
+	public Response getDatasetRecordsWithAxes(@PathParam("categoria") String categoria,
+			@PathParam("exercicio") int exercicio, @PathParam("xAxis") String xAxis, @PathParam("yAxis") String yAxis)
+			throws Exception {
+
+		try {
+
+			String recordsString = this.datasetService.getDatasetRecordsWithAxes(categoria, exercicio, xAxis, yAxis);
+
+			DatastoreResponseDTO datastoreResponse = new Gson().fromJson(recordsString, DatastoreResponseDTO.class);
+
+			List<Object> records = datastoreResponse.getResult().getRecords();
+
+			return Response.ok().entity(records).build();
+
+		} catch (Exception ex) {
+			System.out.println(ex.toString());
+		}
+
+		return Response.serverError().build();
+
+	}
+
+	@GET
 	@Path("/fields/{categoria}/{exercicio}")
 	public Response getDatasetFields(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio)
 			throws Exception {
@@ -116,9 +140,8 @@ public class DataResource {
 
 	@GET
 	@Path("/chartTypes/{categoria}/{exercicio}/{xAxis}/{yAxis}")
-	public Response getChartTypes(@PathParam("categoria") String categoria,
-			@PathParam("exercicio") int exercicio, @PathParam("xAxis") String xAxis, @PathParam("yAxis") String yAxis)
-			throws Exception {
+	public Response getChartTypes(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio,
+			@PathParam("xAxis") String xAxis, @PathParam("yAxis") String yAxis) throws Exception {
 
 		try {
 

@@ -2,6 +2,7 @@ package br.org.tcc.resources;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -43,11 +44,22 @@ public class DatasetresourceResource {
 
 	@GET
 	@Path("/{categoria}/{exercicio}")
-	public Response getByResourceId(@PathParam("categoria") String categoria, @PathParam("exercicio") int exercicio) {
+	public Response getByCategoriaAndExercicio(@PathParam("categoria") String categoria,
+			@PathParam("exercicio") int exercicio) {
 
 		DatasetResource datasetResource = repository.getByCategoriaAndExercicio(categoria, exercicio) //
 				.orElseThrow(() -> new NoResultException("não foi possivel encontrar o objeto"));
 		return Response.ok().entity(datasetResource).build();
+
+	}
+
+	@GET
+	@Path("/exerciciosDisponiveis/{categoria}")
+	public Response getExerciciosDisponiveisByCategoria(@PathParam("categoria") String categoria) {
+
+		List<Integer> exerciciosDisponiveis = repository.getDatasetsByCategoria(categoria).stream()
+				.map(x -> x.getExercicio()).collect(Collectors.toList());
+		return Response.ok().entity(exerciciosDisponiveis).build();
 
 	}
 

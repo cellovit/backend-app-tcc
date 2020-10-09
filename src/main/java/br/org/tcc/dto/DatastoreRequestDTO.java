@@ -1,6 +1,7 @@
 package br.org.tcc.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class DatastoreRequestDTO implements Serializable {
 
@@ -8,7 +9,7 @@ public class DatastoreRequestDTO implements Serializable {
 
 	private String resource_id;
 	private int limit;
-	private String[] fields;
+	private List<String> fields;
 	private String sort;
 	private String distinct;
 
@@ -32,11 +33,11 @@ public class DatastoreRequestDTO implements Serializable {
 		this.limit = limit;
 	}
 
-	public String[] getFields() {
+	public List<String> getFields() {
 		return fields;
 	}
 
-	public void setFields(String[] fields) {
+	public void setFields(List<String> fields) {
 		this.fields = fields;
 	}
 
