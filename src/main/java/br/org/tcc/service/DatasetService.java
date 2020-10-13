@@ -33,11 +33,6 @@ import br.org.tcc.enums.ChartType;
 import br.org.tcc.enums.ColumnType;
 import br.org.tcc.utils.DatasetUtils;
 
-import ml.shifu.shifu.container.ValueObject;
-import ml.shifu.shifu.container.obj.ModelStatsConf.BinningMethod;
-import ml.shifu.shifu.core.Binning;
-import ml.shifu.shifu.core.Binning.BinningDataType;
-
 @ApplicationScoped
 public class DatasetService {
 
@@ -71,7 +66,7 @@ public class DatasetService {
 
 		try {
 
-			return datasetRecifeService.getDatasetResult(request.getResource_id(), 999999, request.getDistinct(),
+			return datasetRecifeService.getDatasetResult(request.getResource_id(), 999999, request.getDistinct(), xAxis,
 					request.getFields());
 
 		} catch (Exception ex) {
@@ -100,7 +95,7 @@ public class DatasetService {
 
 			Logger.getLogger(getClass()).info(xAxisValues);
 
-			if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() < 3) {
+			if (categoricalColumns.contains(xAxis) && numericColumns.contains(yAxis) && xAxisValues.size() <= 5) {
 				chartList.add(ChartType.Pie);
 				chartList.add(ChartType.Bar);
 				return chartList;
