@@ -18,6 +18,6 @@ public interface DatasetRecifeService {
 	
 	@GET
 	public String getDatasetResult(@QueryParam("resource_id") String resource_id, @QueryParam("limit") int limit,
-			@QueryParam("distinct") String distinct, @QueryParam("fields") List<String> fields);
+			@QueryParam("distinct") String distinct, @QueryParam("sort") String sort, @QueryParam("fields") List<String> fields);
 
 }
